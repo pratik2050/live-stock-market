@@ -1,4 +1,6 @@
 # Import necessary modules
+import pandas as pd
+import xlwings
 import asyncio
 import json
 import ssl
@@ -8,6 +10,7 @@ from google.protobuf.json_format import MessageToDict
 from threading import Thread
 import MarketDataFeed_pb2 as pb
 from time import sleep
+import datetime
 
 filename =f"accessToken.txt"
 with open(filename,"r") as file:
@@ -89,9 +92,15 @@ def run_websocket():
 # Start the WebSocket connection in a separate thread
 websocket_thread = Thread(target=run_websocket)
 websocket_thread.start()
+
 sleep(5)
+
 while True:
     sleep(1)
     ltp = data_dict['feeds']['NSE_INDEX|Nifty Bank']['ff']['indexFF']['ltpc']['ltp']
     ltp_50 = data_dict['feeds']['NSE_INDEX|Nifty 50']['ff']['indexFF']['ltpc']['ltp']
+
+    if (datetime.datetime.now().time() >= datetime.time(15, 30)):
+        break
+
     print(f"Last Price {ltp} : {ltp_50}")
