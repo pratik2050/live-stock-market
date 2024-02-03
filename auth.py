@@ -6,16 +6,22 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 import urllib.parse as urlparse
 from pyotp import TOTP
+import json
 
 
 #### Login Credentials ####
 
-api_key = 'cddff55d-5354-47d0-86e1-29a4f89c24ab'
-secret_key = 'zks0ehc9jr'
-r_url = 'https://127.0.0.1:5000/'
-totp_key = 'J5VWIVRKQVR5BQPCRXPM56IGH6XHM27B' # J5VWIVRKQVR5BQPCRXPM56IGH6XHM27B
-mobile_no = '9366978745'
-pin = '978745'
+json_data = 123
+with open('credentials.json', 'r') as json_file:
+    json_data = json.load(json_file)
+
+api_key = json_data.get('api_key')
+secret_key = json_data.get('secret_key')
+r_url = json_data.get('r_url')
+totp_key = json_data.get('totp_key') 
+mobile_no = json_data.get('mobile_no')
+pin = json_data.get('pin')
+
 auth_url = f'https://api-v2.upstox.com/login/authorization/dialog?response_type=code&client_id={api_key}&redirect_uri={r_url}'
 
 #https://api-v2.upstox.com/login/authorization/dialog?response_type=code&client_id=cddff55d-5354-47d0-86e1-29a4f89c24ab&redirect_uri=https://127.0.0.1:5000/
