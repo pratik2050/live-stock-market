@@ -132,6 +132,10 @@ ENV/
 env.bak/
 venv.bak/
 
+# Security Credentials
+credentials.json
+accessToken.txt
+
 # Spyder project settings
 .spyderproject
 .spyproject

@@ -13,7 +13,7 @@ from pyotp import TOTP
 api_key = 'cddff55d-5354-47d0-86e1-29a4f89c24ab'
 secret_key = 'zks0ehc9jr'
 r_url = 'https://127.0.0.1:5000/'
-totp_key = '978745'
+totp_key = 'J5VWIVRKQVR5BQPCRXPM56IGH6XHM27B' # J5VWIVRKQVR5BQPCRXPM56IGH6XHM27B
 mobile_no = '9366978745'
 pin = '978745'
 auth_url = f'https://api-v2.upstox.com/login/authorization/dialog?response_type=code&client_id={api_key}&redirect_uri={r_url}'
