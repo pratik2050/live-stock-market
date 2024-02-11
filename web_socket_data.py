@@ -1,5 +1,4 @@
 # Import necessary modules
-import pandas as pd
 import xlwings as xw
 import asyncio
 import json
@@ -10,21 +9,30 @@ from google.protobuf.json_format import MessageToDict
 from threading import Thread
 import MarketDataFeed_pb2 as pb
 import time
-import requests
 
 
 ### Creating XLSX Records ###
 
-headers = ['Instrument', 'LTP', 'High', 'Low']
-workbook = xw.Book('TickData.xlsx')
-worksheet = workbook.sheets[0]
+headers = ['Time', 'Instrument', 'Open', 'High', 'Low', 'Close']
+
+workbookBNF = xw.Book('BankNifty.xlsx')
+worksheetBNF = workbookBNF.sheets[0]
+
+workbookNifty = xw.Book('Nifty.xlsx')
+worksheetNifty = workbookNifty.sheets[0]
 
 ohlc_time = time.time()
-ohlc_data = ''
-high_price = ''
-low_price = ''
-open_price = ''
-close_price = ''
+Bohlc_data = ''
+Bhigh_price = ''
+Blow_price = ''
+Bopen_price = ''
+Bclose_price = ''
+
+Nohlc_data = ''
+Nhigh_price = ''
+Nlow_price = ''
+Nopen_price = ''
+Nclose_price = ''
 
 filename =f"accessToken.txt"
 with open(filename,"r") as file:
@@ -76,7 +84,7 @@ async def fetch_market_data():
             "method": "sub",
             "data": {
                 "mode": "full",
-                "instrumentKeys": [ "NSE_INDEX|Nifty Bank" ]
+                "instrumentKeys": [ "NSE_INDEX|Nifty Bank", "NSE_INDEX|Nifty 50" ]
             }
         }
 
@@ -89,16 +97,6 @@ async def fetch_market_data():
             message = await websocket.recv()
             decoded_data = decode_protobuf(message)
 
-            # Convert the decoded data to a dictionary
-            # data_dict = MessageToDict(decoded_data)
-            data_dict = pd.DataFrame(columns=headers)
-
-            # Print the dictionary representation
-            # print(json.dumps(data_dict))
-
-
-# Execute the function to fetch market data
-# asyncio.run(fetch_market_data())
 def run_websocket():
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
@@ -110,35 +108,44 @@ websocket_thread.start()
 
 time.sleep(5)
 
+currRow = 2
+
+worksheetBNF.range('A1').value = ['LTP']
+worksheetBNF.range('B1').value = ['Time', 'Instrument', 'Open', 'High', 'Low', 'Close']
+
+worksheetNifty.range('A1').value = ['LTP']
+worksheetNifty.range('B1').value = ['Time', 'Instrument', 'Open', 'High', 'Low', 'Close']
+
+
 while True:
     time.sleep(1)
 
     data = (MessageToDict(decoded_data))
 
-    for instrument, values in data.get('feeds', {}).items():
-        # Extract values for each instrument
-        ltp = values.get('ff', {}).get('indexFF', {}).get('ltpc', {}).get('ltp', '')
-        
-        if time.time() - ohlc_time >= 15:
-            ohlc_data = values.get('ff', {}).get('indexFF', {}).get('marketOHLC', {}).get('ohlc', [])
-            open_price = ohlc_data[0].get('open', '') if ohlc_data else ''
-            high_price = ohlc_data[0].get('high', '') if ohlc_data else ''
-            low_price = ohlc_data[0].get('low', '') if ohlc_data else ''
-            close_price = ohlc_data[0].get('close', '') if ohlc_data else ''
+    feed = data.get('feeds', {})
 
-            ohlc_time = time.time()
-                
+    bankFeed = feed.get('NSE_INDEX|Nifty Bank', {})
+    niftyFeed = feed.get('NSE_INDEX|Nifty 50', {})
 
-        # Append data to the DataFrame
-        data_dict = data_dict._append({
-            'Instrument': instrument,
-            'LTP': ltp,
-            'Open': open_price,
-            'High': high_price,
-            'Low': low_price,
-            'Close': close_price
-        }, ignore_index=True)
+    worksheetBNF.range('A2').value = bankFeed.get('ff', {}).get('indexFF', {}).get('ltpc', {}).get('ltp', '')
+    worksheetNifty.range('A2').value = niftyFeed.get('ff', {}).get('indexFF', {}).get('ltpc', {}).get('ltp', '')
 
-        # Update the Excel file with the DataFrame
-        worksheet.range('A1').value = data_dict
-    
+    if time.time() - ohlc_time >= 15:
+        Bohlc_data = bankFeed.get('ff', {}).get('indexFF', {}).get('marketOHLC', {}).get('ohlc', [])
+        Bopen_price = Bohlc_data[0].get('open', '') if Bohlc_data else ''
+        Bhigh_price = Bohlc_data[0].get('high', '') if Bohlc_data else ''
+        Blow_price = Bohlc_data[0].get('low', '') if Bohlc_data else ''
+        Bclose_price = Bohlc_data[0].get('close', '') if Bohlc_data else ''
+
+        worksheetBNF.range('B' + str(currRow)).value = [time.time(), 'Bank Nifty', Bopen_price, Bhigh_price, Blow_price, Bclose_price]
+
+        Nohlc_data = niftyFeed.get('ff', {}).get('indexFF', {}).get('marketOHLC', {}).get('ohlc', [])
+        Nopen_price = Nohlc_data[0].get('open', '') if Nohlc_data else ''
+        Nhigh_price = Nohlc_data[0].get('high', '') if Nohlc_data else ''
+        Nlow_price = Nohlc_data[0].get('low', '') if Nohlc_data else ''
+        Nclose_price = Nohlc_data[0].get('close', '') if Nohlc_data else ''
+
+        worksheetNifty.range('B' + str(currRow)).value = [time.time(), 'Nifty 50', Nopen_price, Nhigh_price, Nlow_price, Nclose_price]
+
+        ohlc_time = time.time()
+        currRow += 1

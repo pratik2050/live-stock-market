@@ -1,0 +1,14 @@
+Installation:
+
+1. Open the folder in vs code
+2. Open VS Code terminal and initilaite the virtual environment: python -m venv venv. Once done close the terminal process
+3. Set the virtual environment: (ctrl + shift + p) then (Select Interpreter) then (select Recommended under ./venv/Scripts/)
+4. Open a new Terminal and type: pip install -r requirements.txt and wait for some time to install
+
+How To Use?
+
+1. Make sure the installation process is followed properly
+2. Now open a new terminal and first run the auth file: python auth.py, and wait the process is automated and you don't need to do anything
+3. Once the command is executed you should get a new access token file.
+4. Now run the web socket file: python web_socket_data.py, and wait for excel file to load
+
