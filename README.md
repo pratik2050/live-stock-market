@@ -6,10 +6,9 @@ NOTE: You need to have one account in Upstox or Angel One of your own to use thi
 
 ## Getting Started
 ### Installation
-1. Clone the repository ``` git clone ```
-2. Open the clone folder in vs code editor
-3. Open terminal ``` python -m vnev venv ```
-4. 
+Clone the repository and follow the steps in instructions.txt
+
+
 
 
 
