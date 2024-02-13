@@ -74,4 +74,3 @@ jsr = response.json()
 with open('accessToken.txt','w') as file:
     file.write(jsr['access_token'])
 
-# print(f"Access Token : {jsr['access_token']}")

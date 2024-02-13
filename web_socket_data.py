@@ -34,6 +34,17 @@ Nlow_price = ''
 Nopen_price = ''
 Nclose_price = ''
 
+currRow = 2
+
+worksheetBNF.range('A1').value = ['LTP']
+worksheetBNF.range('B1').value = ['Time', 'Instrument', 'Open', 'High', 'Low', 'Close']
+
+worksheetNifty.range('A1').value = ['LTP']
+worksheetNifty.range('B1').value = ['Time', 'Instrument', 'Open', 'High', 'Low', 'Close']
+
+
+### Web Socket Configuration ###
+
 filename =f"accessToken.txt"
 with open(filename,"r") as file:
     access_token = file.read()
@@ -106,16 +117,11 @@ def run_websocket():
 websocket_thread = Thread(target=run_websocket)
 websocket_thread.start()
 
+
 time.sleep(5)
 
-currRow = 2
 
-worksheetBNF.range('A1').value = ['LTP']
-worksheetBNF.range('B1').value = ['Time', 'Instrument', 'Open', 'High', 'Low', 'Close']
-
-worksheetNifty.range('A1').value = ['LTP']
-worksheetNifty.range('B1').value = ['Time', 'Instrument', 'Open', 'High', 'Low', 'Close']
-
+### Getting Continuous Data with 1 Second Interval ###
 
 while True:
     time.sleep(1)
