@@ -95,7 +95,7 @@ async def fetch_market_data():
             "method": "sub",
             "data": {
                 "mode": "full",
-                "instrumentKeys": [ "NSE_INDEX|Nifty Bank", "NSE_INDEX|Nifty 50" ]
+                "instrumentKeys": [ "NSE_INDEX|Nifty Bank", "NSE_INDEX|Nifty 50" ]  # Add intruments as per your need
             }
         }
 
@@ -136,7 +136,7 @@ while True:
     worksheetBNF.range('A2').value = bankFeed.get('ff', {}).get('indexFF', {}).get('ltpc', {}).get('ltp', '')
     worksheetNifty.range('A2').value = niftyFeed.get('ff', {}).get('indexFF', {}).get('ltpc', {}).get('ltp', '')
 
-    if time.time() - ohlc_time >= 15:
+    if time.time() - ohlc_time >= 15:       # 15 means 15 seconds, adjust as per your need
         Bohlc_data = bankFeed.get('ff', {}).get('indexFF', {}).get('marketOHLC', {}).get('ohlc', [])
         Bopen_price = Bohlc_data[0].get('open', '') if Bohlc_data else ''
         Bhigh_price = Bohlc_data[0].get('high', '') if Bohlc_data else ''
