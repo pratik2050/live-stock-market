@@ -8,7 +8,7 @@ import requests
 def fetch_data():
     url = "https://api.upstox.com/v2/historical-candle/{instrument_key}/{interval}/{to_date}/{from_date}"
 
-    instrument_key = 'NSE_FO|52220'  ### NSE_FO|36611 -> BANKNIFTY24APRFUT
+    instrument_key = 'NSE_FO|36611'  ### NSE_FO|36611 -> BANKNIFTY24MARFUT
     interval = '30minute'
     to_date = '2024-02-29'
     from_date = '2024-01-01'
