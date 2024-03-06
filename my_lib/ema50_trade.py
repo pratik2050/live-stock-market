@@ -81,6 +81,24 @@ def generate_signals(data):
     for i in range(len(data)):
         if i >= 2:
             # Condition for buy signal
+            if (is_crossover_green(data, i-2) and is_closed_or_open_above(data, i-1) and (is_crossover_green(data, i) == False and is_crossover_red(data, i) == False)):
+                signals.append('Buy')
+                time = data['Timestamp'][i]
+            # Condition for sell signal
+            elif (is_crossover_red(data, i-2) and is_closed_or_open_below(data, i-1) and (is_crossover_green(data, i) == False and is_crossover_red(data, i) == False)):
+                signals.append('Sell')
+                time = data['Timestamp'][i]
+            else:
+                signals.append('')
+        else:
+            signals.append('')
+    return signals
+
+def generate_signals_open_close(data):
+    signals = []
+    for i in range(len(data)):
+        if i >= 2:
+            # Condition for buy signal
             if (is_crossover_green(data, i-2) and is_closed_or_open_above(data, i-1) and (is_crossover_high_low(data, i) == False)):
                 signals.append('Buy')
                 time = data['Timestamp'][i]
@@ -196,9 +214,16 @@ def back_test():
 
     df = calculate_ema50(df)
 
-    signals = generate_signals(df)
+    signals_high_low = generate_signals(df)
 
-    res = execute_orders(data=df, signals=signals)
-    print(sum(res))
+    signals_open_close = generate_signals_open_close(df)
+
+    res1 = execute_orders(data=df, signals=signals_high_low)
+    print(sum(res1))
+
+    print()
+
+    res2 = execute_orders(data=df, signals=signals_open_close)
+    print(sum(res2))
 
 back_test()
