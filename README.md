@@ -30,16 +30,10 @@ Create `credentials.json` and copy the following json and replace the credentail
 
 ```
 
-### Getting Live Feed
-First Run `auth.py` to get `accessToken.txt` file.
+### Use Case
+You can set the name of the instrument with whome you want to trade. Set the instrument key at line no 68 on `my_lib/web_socket_data.py` 
 
-Live Feed can be activated by running `web_socket_data.py`.
-
-To get life feed of desired instrument change the instrument key at line 98 in `web_socket_data.py`
-
-By Default the OHLC Data will update with interval of 15 seconds and Live tick of ltp will be in real time. 
-
-OHLC Interval can be adjusted at line no 139.
+Run the main.py to see the trade action in live
 
 
 
