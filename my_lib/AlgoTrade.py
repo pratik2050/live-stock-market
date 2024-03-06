@@ -13,14 +13,14 @@ def configure_token():
 
 ### Function to fetch historical data ###
 def fetch_data(ticker_key):
-    url = "https://api.upstox.com/v2/historical-candle/historical-candle/{instrument_key}/{interval}/{to_date}/{from_date}"
+    url = "https://api.upstox.com/v2/historical-candle/{instrument_key}/{interval}/{to_date}/{from_date}"
 
     instrument_key = ticker_key  ### NSE_FO|36611 -> BANKNIFTY24MARFUT
-    interval = 'day'
-    to_date = ''
-    from_date = ''
+    interval = '30minute'
+    to_date = '2024-03-06'
+    from_date = '2024-02-01'
 
-    url = url.format(instrument_key=instrument_key, interval=interval)
+    url = url.format(instrument_key=instrument_key, interval=interval, to_date=to_date, from_date=from_date)
     
     headers = {
         'Accept': 'application/json'
@@ -137,7 +137,7 @@ def execute_orders(data, signals):
                         position = None
                     elif data['High'][i] >= target_price:
                         print(f' Date {time} Sell at target {target_price} bought at {entry_price} net {target_price - entry_price}')
-                        pnl.append(target_price - entry_price)
+                        pnl.append(abs(target_price - entry_price))
                         position = None
 
                 elif position == 'Sell':
@@ -147,7 +147,7 @@ def execute_orders(data, signals):
                         position = None
                     elif data['Low'][i] <= target_price:
                         print(f' Date {time} Buy at target {target_price} Sold at {entry_price} net {target_price - entry_price}')
-                        pnl.append(target_price - entry_price)
+                        pnl.append(abs(target_price - entry_price))
                         position = None
 
     return pnl
@@ -155,13 +155,17 @@ def execute_orders(data, signals):
 
 
 def back_test():
-    data = fetch_data("hsdvbh")
+    data = fetch_data(ticker_key='NSE_FO|36611')
+    data = data['data']['candles']
 
-    df = pd.DataFrame(data, columns=['Timestamp', 'Open', 'High', 'Low', 'Close'])
+    df = pd.DataFrame(data, columns=['Timestamp', 'Open', 'High', 'Low', 'Close', 'Vol', 'Extra'])
     df['Timestamp'] = pd.to_datetime(df['Timestamp'])
 
     df = calculate_technicals(df)
 
     signals = generate_signals(df)
 
-    execute_orders(data=df, signals=signals)
+    res = execute_orders(data=df, signals=signals)
+    print(sum(res))
+
+back_test()
