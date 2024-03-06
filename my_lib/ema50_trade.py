@@ -2,9 +2,6 @@ import pandas as pd
 import talib
 import requests
 
-import xlwings as xw
-
-
 ### Configure access_token ###
 def configure_token():
     global access_token
@@ -34,7 +31,7 @@ def fetch_data(ticker_key):
 
 
 ### Function to calculate technicals from data received ###
-def calculate_technicals(data):
+def calculate_ema50(data):
     data['EMA50'] = data['Close'].ewm(span=50, adjust=False).mean()
     
     # Calculate Supertrend (12,3)
@@ -151,14 +148,14 @@ def execute_orders(data, signals):
                 if signals[i] == 'Buy':
                     position = 'Buy'
                     entry_price = data['Open'][i+1]
-                    stop_loss_price = entry_price - 40
-                    target_price = entry_price + 80
+                    stop_loss_price = data['EMA50'][i] # entry_price - 40
+                    target_price = entry_price + 2 * (entry_price - stop_loss_price) # entry_price + 80
 
                 elif signals[i] == 'Sell':
                     position = 'Sell'
                     entry_price = data['Open'][i+1]
-                    stop_loss_price = entry_price + 40
-                    target_price = entry_price- 80
+                    stop_loss_price = data['EMA50'][i] # entry_price + 40
+                    target_price = entry_price - 2 * (stop_loss_price - entry_price) # entry_price- 80
             else:
                 time = data['Timestamp'][i]
                 if position == 'Buy':
@@ -193,12 +190,7 @@ def back_test():
     df = pd.DataFrame(data, columns=['Timestamp', 'Open', 'High', 'Low', 'Close', 'Vol', 'Extra'])
     df['Timestamp'] = pd.to_datetime(df['Timestamp'])
 
-    df = calculate_technicals(df)
-
-    workbook = xw.Book('data.xlsx')
-    worksheet = workbook.sheets[0]
-
-    worksheet.range('A2').value = df
+    df = calculate_ema50(df)
 
     signals = generate_signals(df)
 

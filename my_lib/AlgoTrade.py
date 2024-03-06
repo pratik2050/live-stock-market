@@ -36,7 +36,7 @@ def calculate_technicals(data):
     data['EMA50'] = data['Close'].ewm(span=50, adjust=False).mean()
     
     # Calculate Supertrend (12,3)
-    supertrend = talib.SMA(data['Close'], timeperiod=12) + 3 * talib.STDDEV(data['Close'], timeperiod=12)
+    supertrend = talib.SMA(data['Close'], timeperiod=6) + 1.5 * talib.STDDEV(data['Close'], timeperiod=6)
     data['Supertrend_Up'] = supertrend
     
     # Calculate RSI
@@ -46,15 +46,39 @@ def calculate_technicals(data):
 
 
 ### Function to generate signals ###
+def is_crossover_green(df, i):
+    if (df['Close'][i] > df['EMA50'][i] and df['Open'][i] < df['EMA50'][i]):
+        return True
+    else:
+        return False
+    
+def is_crossover_red(df, i):
+    if (df['Close'][i] < df['EMA50'][i] and df['Open'][i] > df['EMA50'][i]):
+        return True
+    else:
+        return False
+    
+def is_closed_or_open_above(df, i):
+    if(df['Open'][i] > df['EMA50'][i] and df['Close'][i] > df['EMA50'][i]):
+        return True
+    else:
+        return False
+
+def is_closed_or_open_below(df, i):
+    if(df['Open'][i] < df['EMA50'][i] and df['Close'][i] < df['EMA50'][i]):
+        return True
+    else:
+        return False
+    
 def generate_signals(data):
     signals = []
     for i in range(len(data)):
         if i >= 2:
             # Condition for buy signal
-            if data['Close'][i-2] > data['EMA50'][i-2] and data['Close'][i-1] > data['EMA50'][i-1] and data['RSI'][i-1] < 50:   #and data['Supertrend_Up'][i-1] > data['Close'][i-1]
+            if is_crossover_green(data, i-2) and is_closed_or_open_above(data, i-1) and data['RSI'][i-1] < 50 and data['Supertrend_Up'][i-1] > data['Close'][i-1]:
                 signals.append('Buy')
             # Condition for sell signal
-            elif data['Close'][i-2] < data['EMA50'][i-2] and data['Close'][i-1] < data['EMA50'][i-1] and data['RSI'][i-1] > 50: # and data['Close'][i-1] < data['Supertrend_Up'][i-1]
+            elif is_crossover_red(data, i-2) and is_closed_or_open_below(data, i-1) and data['RSI'][i-1] > 50 and data['Close'][i-1] < data['Supertrend_Up'][i-1]:
                 signals.append('Sell')
             else:
                 signals.append('')
