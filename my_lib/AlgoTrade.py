@@ -132,21 +132,21 @@ def execute_orders(data, signals):
                 time = data['Timestamp'][i]
                 if position == 'Buy':
                     if data['Low'][i] <= stop_loss_price:
-                        print(f' Date {time} Sell at StopLoss {stop_loss_price} bought at {entry_price} net {stop_loss_price - entry_price}')
-                        pnl.append(entry_price - stop_loss_price)
+                        print(f' Date {time} Sell at StopLoss {stop_loss_price} bought at {entry_price} net {-abs(stop_loss_price - entry_price)}')
+                        pnl.append(-abs(entry_price - stop_loss_price))
                         position = None
                     elif data['High'][i] >= target_price:
-                        print(f' Date {time} Sell at target {target_price} bought at {entry_price} net {target_price - entry_price}')
+                        print(f' Date {time} Sell at target {target_price} bought at {entry_price} net {abs(target_price - entry_price)}')
                         pnl.append(abs(target_price - entry_price))
                         position = None
 
                 elif position == 'Sell':
                     if data['High'][i] >= stop_loss_price:
-                        print(f' Date {time} Buy at stoploss {stop_loss_price} Sold at {entry_price} net {stop_loss_price - entry_price}')
-                        pnl.append(entry_price - stop_loss_price)
+                        print(f' Date {time} Buy at stoploss {stop_loss_price} Sold at {entry_price} net {-abs(entry_price - stop_loss_price)}')
+                        pnl.append(-abs(entry_price - stop_loss_price))
                         position = None
                     elif data['Low'][i] <= target_price:
-                        print(f' Date {time} Buy at target {target_price} Sold at {entry_price} net {target_price - entry_price}')
+                        print(f' Date {time} Buy at target {target_price} Sold at {entry_price} net {abs(target_price - entry_price)}')
                         pnl.append(abs(entry_price - target_price))
                         position = None
 
