@@ -17,7 +17,7 @@ def fetch_data(ticker_key):
     instrument_key = ticker_key  ### NSE_FO|36611 -> BANKNIFTY24MARFUT
     interval = '30minute'
     to_date = '2024-03-07'
-    from_date = '2024-02-01'
+    from_date = '2024-01-01'
 
     url = url.format(instrument_key=instrument_key, interval=interval, to_date=to_date, from_date=from_date)
     
@@ -78,12 +78,10 @@ def generate_signals(data):
             if (is_crossover_green(data, i-2) and is_closed_or_open_above(data, i-1) and (is_crossover_green(data,i) == False and is_crossover_red(data, i) == False)):
                 signals.append('Buy')
                 time = data['Timestamp'][i]
-                print(f'Buy signal at {time}')
             # Condition for sell signal
             elif (is_crossover_red(data, i-2) and is_closed_or_open_below(data, i-1) and (is_crossover_green(data, i) == False and is_crossover_red(data, i))):
                 signals.append('Sell')
                 time = data['Timestamp'][i]
-                print(f'sell signal at {time}')
             else:
                 signals.append('')
         else:
