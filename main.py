@@ -11,7 +11,7 @@ from my_lib import AlgoTrade as atr
 
 
 ########################### Start Authentication ###############################
-# auth.make_auth()
+auth.make_auth()
 
 
 ############################### Starting Web Socket Feed ####################################
