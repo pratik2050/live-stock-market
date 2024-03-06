@@ -57,6 +57,12 @@ def is_crossover_red(df, i):
     else:
         return False
     
+def is_crossover_high_low(df, i):
+    if (df['High'][i] > df['EMA50'][i] and df['Low'][i] < df['EMA50'][i]):
+        return True
+    else:
+        return False
+    
 def is_closed_or_open_above(df, i):
     if(df['Open'][i] > df['EMA50'][i] and df['Close'][i] > df['EMA50'][i]):
         return True
@@ -75,11 +81,11 @@ def generate_signals(data):
     for i in range(len(data)):
         if i >= 2:
             # Condition for buy signal
-            if (is_crossover_green(data, i-2) and is_closed_or_open_above(data, i-1) and (is_crossover_green(data,i) == False and is_crossover_red(data, i) == False)):
+            if (is_crossover_green(data, i-2) and is_closed_or_open_above(data, i-1) and (is_crossover_high_low(data, i) == False)):
                 signals.append('Buy')
                 time = data['Timestamp'][i]
             # Condition for sell signal
-            elif (is_crossover_red(data, i-2) and is_closed_or_open_below(data, i-1) and (is_crossover_green(data, i) == False and is_crossover_red(data, i))):
+            elif (is_crossover_red(data, i-2) and is_closed_or_open_below(data, i-1) and (is_crossover_high_low(data, i) == False)):
                 signals.append('Sell')
                 time = data['Timestamp'][i]
             else:
