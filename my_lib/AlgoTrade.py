@@ -133,7 +133,7 @@ def execute_orders(data, signals):
                 if position == 'Buy':
                     if data['Low'][i] <= stop_loss_price:
                         print(f' Date {time} Sell at StopLoss {stop_loss_price} bought at {entry_price} net {stop_loss_price - entry_price}')
-                        pnl.append(stop_loss_price - entry_price)
+                        pnl.append(entry_price - stop_loss_price)
                         position = None
                     elif data['High'][i] >= target_price:
                         print(f' Date {time} Sell at target {target_price} bought at {entry_price} net {target_price - entry_price}')
