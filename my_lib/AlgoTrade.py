@@ -51,10 +51,10 @@ def generate_signals(data):
     for i in range(len(data)):
         if i >= 2:
             # Condition for buy signal
-            if data['Close'][i-2] > data['EMA50'][i-2] and data['Close'][i-1] > data['EMA50'][i-1] and data['Supertrend_Up'][i-1] > data['Close'][i-1] and data['RSI'][i-1] < 50:
+            if data['Close'][i-2] > data['EMA50'][i-2] and data['Close'][i-1] > data['EMA50'][i-1] and data['RSI'][i-1] < 50:   #and data['Supertrend_Up'][i-1] > data['Close'][i-1]
                 signals.append('Buy')
             # Condition for sell signal
-            elif data['Close'][i-2] < data['EMA50'][i-2] and data['Close'][i-1] < data['EMA50'][i-1] and data['Close'][i-1] < data['Supertrend_Up'][i-1] and data['RSI'][i-1] > 50:
+            elif data['Close'][i-2] < data['EMA50'][i-2] and data['Close'][i-1] < data['EMA50'][i-1] and data['RSI'][i-1] > 50: # and data['Close'][i-1] < data['Supertrend_Up'][i-1]
                 signals.append('Sell')
             else:
                 signals.append('')
