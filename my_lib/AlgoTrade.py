@@ -1,3 +1,4 @@
+import pandas as pd
 import talib
 import requests
 
@@ -12,10 +13,12 @@ def configure_token():
 
 ### Function to fetch historical data ###
 def fetch_data(ticker_key):
-    url = "https://api.upstox.com/v2/historical-candle/intraday/{instrument_key}/{interval}"
+    url = "https://api.upstox.com/v2/historical-candle/historical-candle/{instrument_key}/{interval}/{to_date}/{from_date}"
 
     instrument_key = ticker_key  ### NSE_FO|36611 -> BANKNIFTY24MARFUT
-    interval = '30minute'
+    interval = 'day'
+    to_date = ''
+    from_date = ''
 
     url = url.format(instrument_key=instrument_key, interval=interval)
     
@@ -103,48 +106,62 @@ def place_order(instrument_key, order_type, transaction_type, stop_loss):
 
 
 ### Function to Logic of Execute Orders and P&L ###
-# def execute_orders(data, signals):
+def execute_orders(data, signals):
 
-#     position = None
-#     entry_price = None
-#     stop_loss_price = None
-#     target_price = None
-#     pnl = []
+    position = None
+    entry_price = None
+    stop_loss_price = None
+    target_price = None
+    pnl = []
 
-#     for i in range(len(data)):
-#         if i >= 2 and signals[i] != '':
-#             if position is None:
-#                 if signals[i] == 'Buy':
-#                     position = 'Buy'
-#                     entry_price = data['Open'][i+1]
-#                     stop_loss_price = data['EMA50'][i]
-#                     target_price = data['Open'][i+1] + 2 * (data['Open'][i+1] - stop_loss_price)
+    for i in range(len(data)):
+        if i >= 2 and signals[i] != '':
+            if position is None:
+                if signals[i] == 'Buy':
+                    position = 'Buy'
+                    entry_price = data['Open'][i+1]
+                    stop_loss_price = data['EMA50'][i]
+                    target_price = data['Open'][i+1] + 2 * (data['Open'][i+1] - stop_loss_price)
 
-#                 elif signals[i] == 'Sell':
-#                     position = 'Sell'
-#                     entry_price = data['Open'][i+1]
-#                     stop_loss_price = data['EMA50'][i]
-#                     target_price = data['Open'][i+1] - 2 * (stop_loss_price - data['Open'][i+1])
-#             else:
-#                 time = data['Timestamp'][i]
-#                 if position == 'Buy':
-#                     if data['Low'][i] <= stop_loss_price:
-#                         print(f' Date {time} Sell at StopLoss {stop_loss_price} bought at {entry_price} net {stop_loss_price - entry_price}')
-#                         pnl.append(stop_loss_price - entry_price)
-#                         position = None
-#                     elif data['High'][i] >= target_price:
-#                         print(f' Date {time} Sell at target {target_price} bought at {entry_price} net {target_price - entry_price}')
-#                         pnl.append(target_price - entry_price)
-#                         position = None
+                elif signals[i] == 'Sell':
+                    position = 'Sell'
+                    entry_price = data['Open'][i+1]
+                    stop_loss_price = data['EMA50'][i]
+                    target_price = data['Open'][i+1] - 2 * (stop_loss_price - data['Open'][i+1])
+            else:
+                time = data['Timestamp'][i]
+                if position == 'Buy':
+                    if data['Low'][i] <= stop_loss_price:
+                        print(f' Date {time} Sell at StopLoss {stop_loss_price} bought at {entry_price} net {stop_loss_price - entry_price}')
+                        pnl.append(stop_loss_price - entry_price)
+                        position = None
+                    elif data['High'][i] >= target_price:
+                        print(f' Date {time} Sell at target {target_price} bought at {entry_price} net {target_price - entry_price}')
+                        pnl.append(target_price - entry_price)
+                        position = None
 
-#                 elif position == 'Sell':
-#                     if data['High'][i] >= stop_loss_price:
-#                         print(f' Date {time} Buy at stoploss {stop_loss_price} Sold at {entry_price} net {stop_loss_price - entry_price}')
-#                         pnl.append(stop_loss_price - entry_price)
-#                         position = None
-#                     elif data['Low'][i] <= target_price:
-#                         print(f' Date {time} Buy at target {target_price} Sold at {entry_price} net {target_price - entry_price}')
-#                         pnl.append(target_price - entry_price)
-#                         position = None
+                elif position == 'Sell':
+                    if data['High'][i] >= stop_loss_price:
+                        print(f' Date {time} Buy at stoploss {stop_loss_price} Sold at {entry_price} net {stop_loss_price - entry_price}')
+                        pnl.append(stop_loss_price - entry_price)
+                        position = None
+                    elif data['Low'][i] <= target_price:
+                        print(f' Date {time} Buy at target {target_price} Sold at {entry_price} net {target_price - entry_price}')
+                        pnl.append(target_price - entry_price)
+                        position = None
 
-#     return pnl
+    return pnl
+
+
+
+def back_test():
+    data = fetch_data("hsdvbh")
+
+    df = pd.DataFrame(data, columns=['Timestamp', 'Open', 'High', 'Low', 'Close'])
+    df['Timestamp'] = pd.to_datetime(df['Timestamp'])
+
+    df = calculate_technicals(df)
+
+    signals = generate_signals(df)
+
+    execute_orders(data=df, signals=signals)
