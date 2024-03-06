@@ -75,3 +75,5 @@ def make_auth():
     with open('accessToken.txt','w') as file:
         file.write(jsr['access_token'])
 
+    return
+

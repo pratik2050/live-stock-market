@@ -1,13 +1,13 @@
-import pandas as pd
 import talib
 import requests
 
 
-global access_token
-
-filename =f"accessToken.txt"
-with open(filename,"r") as file:
-    access_token = file.read()
+### Configure access_token ###
+def configure_token():
+    global access_token
+    filename =f"accessToken.txt"
+    with open(filename,"r") as file:
+        access_token = file.read()
 
 
 ### Function to fetch historical data ###
