@@ -8,7 +8,7 @@ import upstox_client
 import websockets
 from google.protobuf.json_format import MessageToDict
 from threading import Thread
-import MarketDataFeed_pb2 as pb
+import my_lib.market_data_lib as pb
 import time
 
 
@@ -65,7 +65,7 @@ async def fetch_market_data():
             "method": "sub",
             "data": {
                 "mode": "full",
-                "instrumentKeys": [ "NSE_FO|36611" ]  # Add intruments as per your need
+                "instrumentKeys": [ "NSE_FO|36612" ]  # Add intruments as per your need
             }
         }
 
@@ -116,7 +116,7 @@ def get_live_data():
 
         feed = data.get('feeds', {})
 
-        OHLC_Feed = feed.get('NSE_FO|36611', {})
+        OHLC_Feed = feed.get('NSE_FO|36612', {})
 
         worksheet.range('A2').value = OHLC_Feed.get('ff', {}).get('marketFF', {}).get('ltpc', {}).get('ltp', '')
 
@@ -127,9 +127,7 @@ def get_live_data():
             low_price = ohlc_data[0].get('low', '') if ohlc_data else ''
             close_price = ohlc_data[0].get('close', '') if ohlc_data else ''
 
-            worksheet.range('B' + str(currRow)).value = [time.time(), 'instru', open_price, high_price, low_price, close_price]
-            global candles
-            candles = [time.time(), open_price, high_price, low_price, close_price]
+            worksheet.range('B' + str(currRow)).value = [time.time(), 'Nifty March', open_price, high_price, low_price, close_price]
 
             ohlc_time = time.time()
             currRow += 1
