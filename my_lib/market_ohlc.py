@@ -3,6 +3,7 @@ import json
 import os
 
 
+
 ################################################ Configure access_token ###########################################
 def configure_token():
     current_directory = os.getcwd()
@@ -11,6 +12,7 @@ def configure_token():
     global access_token
     with open(file_path, "r") as file:
         access_token = file.read()
+
 
 
 ######################################### Function to fetch historical data ######################################
@@ -35,31 +37,24 @@ def fetch_historical_data(ticker_key):
 
 
 ##################################### Wite to Json ###################################
-def write_json(data, instument_key):
-    last_price = data['data'][instument_key]['last_price']
-    instrument_token = data['data'][instument_key]['instrument_token']
-    ohlc_data = data['data'][instument_key]['ohlc']
-
-    output_data = {
-        'last_price': last_price,
-        'instrument_token': instrument_token,
-        'ohlc': ohlc_data
-    }
+def write_json(data):
+    first_element = next(iter(data['data'].values()))
 
     output_file_path = 'ohlc.json'
     with open(output_file_path, 'w') as f:
-        json.dump(output_data, f, indent=4)
+        json.dump(first_element, f, indent=4)
 
 
 
 ################################### Function to fetch OHLC Data ################################
 def get_ohlc_quote(instrument_key, interval):
     configure_token()
+    print(access_token)
 
     url = 'https://api.upstox.com/v2/market-quote/ohlc'
     headers = {
         'Accept': 'application/json',
-        'Authorization': access_token 
+        'Authorization': 'Bearer ' + access_token
     }
 
     data = {
@@ -68,10 +63,8 @@ def get_ohlc_quote(instrument_key, interval):
     }
 
     response = requests.request("GET", url, headers=headers, params=data)
-    print (response)
     response = response.json()
 
-    write_json(data=response, instument_key=instrument_key)
+    write_json(data=response)
 
-
-get_ohlc_quote(instrument_key='NSE_FO|36612', interval='I1')
+    return response.get('data', {})

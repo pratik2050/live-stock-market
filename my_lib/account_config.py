@@ -2,7 +2,8 @@ import pandas as pd
 import requests
 
 
-### Configure access_token ###
+
+####################################### Configure access_token ##########################################
 def configure_token():
     global access_token
     filename =f"accessToken.txt"
@@ -10,7 +11,8 @@ def configure_token():
         access_token = file.read()
 
 
-### Function to Get Postion of account ###
+
+########################################### Function to Get Postion of account #################################################
 def get_position():
     configure_token()
     url = 'https://api.upstox.com/v2/portfolio/short-term-positions'
@@ -24,7 +26,8 @@ def get_position():
     return response.json()
 
 
-### Function to Place Order ###
+
+################################################ Function to Place Order #####################################################
 def place_order(instrument_key, order_type, transaction_type, stop_loss):
     configure_token()
     url = 'https://api.upstox.com/v2/order/place'
@@ -51,7 +54,6 @@ def place_order(instrument_key, order_type, transaction_type, stop_loss):
     response = requests.request("POST", url, headers=headers, json=data)
 
     return response.json()
-
 
 
 

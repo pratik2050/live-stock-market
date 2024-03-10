@@ -26,13 +26,11 @@ def get_market_data_feed_authorize(api_version, configuration):
     api_response = api_instance.get_market_data_feed_authorize(api_version)
     return api_response
 
-
 def decode_protobuf(buffer):
     """Decode protobuf message."""
     feed_response = pb.FeedResponse()
     feed_response.ParseFromString(buffer)
     return feed_response
-
 
 async def fetch_market_data():
     global data_dict, decoded_data
@@ -89,8 +87,8 @@ def run_socket():
     websocket_thread.start()
 
 
-################################ Getting Continuous Data with 1 Second Interval ########################################
 
+################################ Getting Continuous Data with 1 Second Interval ########################################
 def get_live_data():
     workbook = xw.Book('data.xlsx')
     worksheet = workbook.sheets[0]

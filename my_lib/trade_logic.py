@@ -2,6 +2,7 @@
 # import talib
 
 
+
 ################################ Function to calculate technicals from data received #################################
 def calculate_technicals(data):
     data['EMA50'] = data['Close'].ewm(span=50, adjust=False).mean()
@@ -48,7 +49,6 @@ def is_closed_or_open_below(df, i):
     else:
         return False
 
-
 def generate_signals(data):
     signals = []
     for i in range(len(data)):
@@ -68,18 +68,20 @@ def generate_signals(data):
     return signals
 
 
-##################################### Function to Logic of Execute Orders and P&L #######################################
-def execute_orders(data, signals):
 
-    position = None
-    entry_price = None
-    stop_loss_price = None
-    target_price = None
+##################################### Function to Logic of Execute Orders and P&L #######################################
+def execute_orders(data, signals, position, entry_price, stop_loss_price, target_price, prev_time):
+
+    position = position
+    entry_price = entry_price
+    stop_loss_price = stop_loss_price
+    target_price = target_price
     pnl = []
 
     for i in range(len(data)):
         if i >= 2 and signals[i] != '':
-            if position is None:
+            time = data['Timestamp'][i]
+            if position is None and time > prev_time:
                 if signals[i] == 'Buy':
                     position = 'Buy'
                     entry_price = data['Open'][i+1]
@@ -90,9 +92,10 @@ def execute_orders(data, signals):
                     entry_price = data['Open'][i+1]
                     stop_loss_price = data['EMA50'][i]
                     target_price = entry_price - 2 * (stop_loss_price - entry_price)
+                
+                prev_time = time
             else:
-                time = data['Timestamp'][i]
-                if position == 'Buy':
+                if position == 'Buy' and time > prev_time:
                     if data['Low'][i] <= stop_loss_price:
                         print(f' Date {time} Sell at StopLoss {stop_loss_price} bought at {entry_price} net {-abs(stop_loss_price - entry_price)}')
                         pnl.append(-abs(entry_price - stop_loss_price))
@@ -102,7 +105,7 @@ def execute_orders(data, signals):
                         pnl.append(abs(target_price - entry_price))
                         position = None
 
-                elif position == 'Sell':
+                elif position == 'Sell' and time > prev_time:
                     if data['High'][i] >= stop_loss_price:
                         print(f' Date {time} Buy at stoploss {stop_loss_price} Sold at {entry_price} net {-abs(entry_price - stop_loss_price)}')
                         pnl.append(-abs(entry_price - stop_loss_price))
@@ -111,5 +114,7 @@ def execute_orders(data, signals):
                         print(f' Date {time} Buy at target {target_price} Sold at {entry_price} net {abs(target_price - entry_price)}')
                         pnl.append(abs(entry_price - target_price))
                         position = None
+                
+                prev_time = time
 
-    return [position, entry_price, stop_loss_price, target_price]
+    return [position, entry_price, stop_loss_price, target_price, prev_time]
