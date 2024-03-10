@@ -20,7 +20,7 @@ interval = '1minute'
 
 
 ########################### Start Authentication ###############################
-auth.make_auth()
+# auth.make_auth()
 
 time.sleep(1)
 

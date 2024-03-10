@@ -1,6 +1,4 @@
-import pandas as pd
 import requests
-
 
 
 ####################################### Configure access_token ##########################################

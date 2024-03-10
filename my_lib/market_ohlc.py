@@ -16,13 +16,13 @@ def configure_token():
 
 
 ######################################### Function to fetch historical data ######################################
-def fetch_historical_data(ticker_key):
+def fetch_historical_data(instrument_key, interval, to_date, from_data):
     url = "https://api.upstox.com/v2/historical-candle/{instrument_key}/{interval}/{to_date}/{from_date}"
 
-    instrument_key = ticker_key  ### NSE_FO|36611 -> BANKNIFTY24MARFUT
-    interval = '30minute'
-    to_date = '2024-03-06'
-    from_date = '2024-02-01'
+    instrument_key = instrument_key  ### NSE_FO|36611 -> BANKNIFTY24MARFUT
+    interval = interval
+    to_date = to_date
+    from_date = from_data
 
     url = url.format(instrument_key=instrument_key, interval=interval, to_date=to_date, from_date=from_date)
     

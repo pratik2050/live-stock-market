@@ -72,12 +72,6 @@ def generate_signals(data):
 ##################################### Function to Logic of Execute Orders and P&L #######################################
 def execute_orders(data, signals, position, entry_price, stop_loss_price, target_price, prev_time):
 
-    position = position
-    entry_price = entry_price
-    stop_loss_price = stop_loss_price
-    target_price = target_price
-    pnl = []
-
     for i in range(len(data)):
         if i >= 2 and signals[i] != '':
             time = data['Timestamp'][i]
