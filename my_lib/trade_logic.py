@@ -53,7 +53,7 @@ def is_closed_or_open_below(df, i):
 def generate_signals(data):
     signals = []
     for i in range(len(data)):
-        if not data['Volume']:
+        if data['Volume'] is None:
             if i >= 2:
                 # Condition for buy signal
                 if (is_crossover_green(data, i-2) and is_closed_or_open_above(data, i-1) and (is_crossover_green(data, i) == False and is_crossover_red(data, i) == False)):

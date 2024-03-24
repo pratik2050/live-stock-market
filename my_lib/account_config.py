@@ -37,7 +37,7 @@ def place_order(instrument_key, order_type, transaction_type, stop_loss):
 
     data = {
         'quantity': 75,
-        'product': 'I',
+        'product': 'D',
         'validity': 'DAY',
         'price': 0.0,
         'tag': 'string',

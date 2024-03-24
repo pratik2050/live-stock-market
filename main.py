@@ -74,7 +74,7 @@ while True:
     if len(today_df.columns) < len(historical_df.columns):
         for column in historical_df.columns:
             if column not in today_df.columns:
-                today_df[column] = '123'  
+                today_df[column] = None  
 
     df = historical_df._append(today_df, ignore_index=True)
 
