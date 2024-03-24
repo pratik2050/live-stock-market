@@ -20,11 +20,6 @@ interval = '30minute'
 to_date = '2024-03-03'
 from_date = '2024-01-01'
 
-entry_price = None
-position = None
-stop_loss_price = None
-target_price = None
-prev_time = 0
 
 def test():
     data = ohlc.fetch_historical_data(instrument_key=instrument_key, interval=interval, to_date=to_date, from_data=from_date)
@@ -35,6 +30,12 @@ def test():
     df = trade.calculate_technicals(df)
 
     signals = trade.generate_signals(df)
+    
+    entry_price = None
+    position = None
+    stop_loss_price = None
+    target_price = None
+    prev_time = 0
 
     res = trade.execute_orders(data=df, signals=signals, position=position, entry_price=entry_price, stop_loss_price=stop_loss_price, target_price=target_price, prev_time=prev_time)
   

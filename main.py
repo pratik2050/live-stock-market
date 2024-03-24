@@ -1,6 +1,7 @@
 import pandas as pd
 import time
 from threading import Thread
+import json
 
 import sys
 sys.path.append('./my_lib')
@@ -14,15 +15,39 @@ from my_lib import market_ohlc as ohlc
 
 
 ############################### Setting Up Configuration ################################
-instrument_key = 'NSE_FO|36611'
-interval = '1minute'
 
+global entry_price, position, stop_loss_price, target_price
+
+instrument_key = 'NSE_FO|36611'                  # Set Instrument token key from excel
+instrument_name = 'NSE_FO:BANKNIFTY24MARFUT'     # Set Instrument Name from excel 
+interval_histoical = '30minute'
+interval_quote = 'I30'
+
+from_date = '2024-01-01'      # Set the date in format of 'yy-mm-dd' when last trade occured
+to_date = '2020-01-01'        # Set tomorrow date in format of 'yy-mm-dd'
+
+
+historical_data = ohlc.fetch_historical_data(instrument_key=instrument_key, interval=interval_histoical, to_date=to_date, from_data=from_date)
+historical_data = historical_data['data']['candles']
+
+historical_df = pd.DataFrame(historical_data, columns=['Time', 'Open', 'High', 'Low', 'Close', 'Volume', 'Extra'])
+historical_df = pd.to_datetime(historical_df['Time'])
+historical_df[::-1]
+
+json_data = 123
+with open('ohlc.json', 'r') as json_file:
+    json_data = json.load(json_file)
+
+entry_price = json_data.get('entry_price')
+position = json_data.get('position')
+stop_loss_price = json_data.get('stop_loss_price')
+target_price = json_data.get('target_price')
 
 
 ########################### Start Authentication ###############################
 # auth.make_auth()
+# time.sleep(1)
 
-time.sleep(1)
 
 ############################### Start Web Socket Feed ####################################
 # ws.configure_token()
@@ -35,43 +60,37 @@ time.sleep(1)
 # data_thread.start()
 
 
-
-################################ Get OHLC Interval Quote ###################################
-ohlc.configure_token()
-
-def get_ohlc_1min():
-    global ohlc_data
-    ohlc_data = ohlc.get_ohlc_quote(instrument_key=instrument_key, interval=interval)
-
-    return ohlc_data
-
-
-
 ################################## Trade Execute in Live Market ######################################
-entry_price = None
-position = None
-stop_loss_price = None
-target_price = None
-prev_time = 0
-
 while True:
-    time.sleep(60)
+    today_data = ohlc.get_ohlc_quote(instrument_key=instrument_key, interval=interval_quote)
 
-    ohlc_data = ohlc_data.get('ohlc', {})
+    today_data = today_data.get(instrument_name, {}).get('ohlc', {})
 
+    today_data = [time.time(), today_data.get('open'), today_data.get('high'), today_data.get('low'), today_data.get('close')]
 
-    candles_data = [instrument_key, time.time(), ohlc_data.get('open'), ohlc_data.get('high'), ohlc_data.get('low'), ohlc_data.get('close')]
+    today_df = pd.DataFrame(today_data, columns=['Time', 'Open', 'High', 'Low', 'Close'])
+    today_df = pd.to_datetime(df['Time'])
 
-    df = pd.DataFrame(candles_data, columns=[instrument_key, 'Timestamp', 'Open', 'High', 'Low', 'Close'])
+    if len(today_df.columns) < len(historical_df.columns):
+        for column in historical_df.columns:
+            if column not in today_df.columns:
+                today_df[column] = '123'  
+
+    df = historical_df._append(today_df, ignore_index=True)
 
     df = trade.calculate_technicals(data=df)
 
     signals = trade.generate_signals(data=df)
 
-    P_E_SL_T = trade.execute_orders(data=df, signals=signals, position=position, entry_price=entry_price, stop_loss_price=stop_loss_price, target_price=target_price, prev_time=prev_time)
+    P_E_SL_T = trade.execute_orders(data=df, signals=signals, position=position, entry_price=entry_price, stop_loss_price=stop_loss_price, target_price=target_price, instrument_key=instrument_name)
 
     position = P_E_SL_T[0]
     entry_price = P_E_SL_T[1]
     stop_loss_price = P_E_SL_T[2]
     target_price = P_E_SL_T[3]
-    prev_time = P_E_SL_T[4]
+
+    json_data = [entry_price, stop_loss_price, target_price, position]
+
+    ohlc.write_json(json_data)
+
+    time.sleep(1800)

@@ -38,11 +38,16 @@ def fetch_historical_data(instrument_key, interval, to_date, from_data):
 
 ##################################### Wite to Json ###################################
 def write_json(data):
-    first_element = next(iter(data['data'].values()))
+    data = {
+        "entry_price": data[0],
+        "stop_loss_price": data[1],
+        "target_price": data[2],
+        "position": data[3]
+    }
 
     output_file_path = 'ohlc.json'
     with open(output_file_path, 'w') as f:
-        json.dump(first_element, f, indent=4)
+        json.dump(data, f, indent=4)
 
 
 
@@ -64,7 +69,5 @@ def get_ohlc_quote(instrument_key, interval):
 
     response = requests.request("GET", url, headers=headers, params=data)
     response = response.json()
-
-    write_json(data=response)
 
     return response.get('data', {})
