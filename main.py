@@ -1,5 +1,6 @@
 import pandas as pd
 import time
+from datetime import datetime
 from threading import Thread
 import json
 
@@ -18,13 +19,13 @@ from my_lib import market_ohlc as ohlc
 
 global entry_price, position, stop_loss_price, target_price
 
-instrument_key = 'NSE_FO|36611'                  # Set Instrument token key from excel
-instrument_name = 'NSE_FO:BANKNIFTY24MARFUT'     # Set Instrument Name from excel 
-interval_histoical = '30minute'
-interval_quote = 'I30'
+instrument_key = 'NSE_FO|52220'                  # Set Instrument token key from excel
+instrument_name = 'NSE_FO:BANKNIFTY24APRFUT'     # Set Instrument Name from excel 
+interval_histoical = '1minute'
+interval_quote = 'I1'
 
-from_date = '2024-01-01'      # Set the date in format of 'yy-mm-dd' when last trade occured
-to_date = '2020-01-01'        # Set tomorrow date in format of 'yy-mm-dd'
+from_date = '2024-03-21'      # Set the date in format of 'yy-mm-dd' when last trade occured
+to_date = '2024-03-22'        # Set tomorrow date in format of 'yy-mm-dd'
 
 
 historical_data = ohlc.fetch_historical_data(instrument_key=instrument_key, interval=interval_histoical, to_date=to_date, from_data=from_date)
@@ -64,19 +65,13 @@ target_price = json_data.get('target_price')
 while True:
     today_data = ohlc.get_ohlc_quote(instrument_key=instrument_key, interval=interval_quote)
 
-    today_data = today_data.get(instrument_name, {}).get('ohlc', {})
+    today_data = today_data[instrument_name]['ohlc']
 
-    today_data = [time.time(), today_data.get('open'), today_data.get('high'), today_data.get('low'), today_data.get('close')]
+    today_data = [datetime.now(), today_data.get('open'), today_data.get('high'), today_data.get('low'), today_data.get('close'), None, None]
+    today_df = pd.DataFrame(today_data, columns=['Time', 'Open', 'High', 'Low', 'Close', 'Volume', 'Extra'])
+    today_df = pd.to_datetime(today_df['Time'])
 
-    today_df = pd.DataFrame(today_data, columns=['Time', 'Open', 'High', 'Low', 'Close'])
-    today_df = pd.to_datetime(df['Time'])
-
-    if len(today_df.columns) < len(historical_df.columns):
-        for column in historical_df.columns:
-            if column not in today_df.columns:
-                today_df[column] = None  
-
-    df = historical_df._append(today_df, ignore_index=True)
+    df = historical_df._append(today_data, ignore_index=True)
 
     df = trade.calculate_technicals(data=df)
 
@@ -93,4 +88,4 @@ while True:
 
     ohlc.write_json(json_data)
 
-    time.sleep(1800)
+    time.sleep(61)
