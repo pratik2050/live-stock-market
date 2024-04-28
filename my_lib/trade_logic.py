@@ -76,8 +76,8 @@ def execute_orders(data, signals, position, entry_price, stop_loss_price, target
 
     for i in range(len(data)):
         if i >= 2 and signals[i] != '':
-            time = data['Timestamp'][i]
-            if position is None and time:
+            time = data['Time'][i]
+            if position is "" and time:
                 if signals[i] == 'Buy':
                     position = 'Buy'
                     entry_price = data['Open'][i+1]

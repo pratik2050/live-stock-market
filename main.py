@@ -19,8 +19,8 @@ from my_lib import market_ohlc as ohlc
 
 global entry_price, position, stop_loss_price, target_price
 
-instrument_key = 'NSE_FO|52220'                  # Set Instrument token key from excel
-instrument_name = 'NSE_FO:BANKNIFTY24APRFUT'     # Set Instrument Name from excel 
+instrument_key = 'NSE_FO|46930'                  # Set Instrument token key from excel
+instrument_name = 'NSE_FO:NIFTY24MAYFUT'     # Set Instrument Name from excel 
 interval_histoical = '1minute'
 interval_quote = 'I1'
 
@@ -46,8 +46,8 @@ target_price = json_data.get('target_price')
 
 
 ########################### Start Authentication ###############################
-# auth.make_auth()
-# time.sleep(1)
+auth.make_auth()
+time.sleep(1)
 
 
 ############################### Start Web Socket Feed ####################################
