@@ -1,4 +1,6 @@
+import numpy as np
 import pandas as pd
+import talib
 
 import sys
 sys.path.append('./my_lib')
@@ -61,6 +63,66 @@ def generate_signals(data):
             signals.append('')
     return signals
 
+def calculate_Supertrend(df, atr_period, multiplier):
+    high = df['High']
+    low = df['Low']
+    close = df['Close']
+    atr = talib.ATR(high.values, low.values, close.values, timeperiod=atr_period)
+    hl2 = (high + low) / 2
+    final_upperband = np.zeros(len(close))
+    final_lowerband = np.zeros(len(close))
+    Supertrend = np.zeros(len(close))
+
+    for i in range(atr_period, len(close)):
+        if i == atr_period:
+            final_upperband[i] = hl2[i] + (multiplier * atr[i])
+            final_lowerband[i] = hl2[i] - (multiplier * atr[i])
+        else:
+            final_upperband[i] = min(hl2[i] + (multiplier * atr[i]), final_upperband[i-1]) if close[i-1] <= final_upperband[i-1] else hl2[i] + (multiplier * atr[i])
+            final_lowerband[i] = max(hl2[i] - (multiplier * atr[i]), final_lowerband[i-1]) if close[i-1] >= final_lowerband[i-1] else hl2[i] - (multiplier * atr[i])
+
+        Supertrend[i] = final_lowerband[i] if close[i] > final_lowerband[i] else final_upperband[i]
+
+    df['Supertrend'] = Supertrend
+    return df
+
+def backtest_strategy_with_supertend(data):
+    data['EMA50'] = data['Close'].ewm(span=50, adjust=False).mean()
+    data['RSI'] = talib.RSI(data['Close'], timeperiod=14)
+    data = calculate_Supertrend(data, 12, 3)  # Adjust these parameters as needed
+
+    signals = []
+    signals_one = []
+    positions = []
+    for i in range(len(data)):  # Start at 50 to ensure EMA and other indicators have enough data
+        if data['Close'][i] > data['EMA50'][i] and data['RSI'][i] > 50 and data['Close'][i] > data['Supertrend'][i]:
+            # Entry for Buy
+            if not positions or positions[-1][0] == 'sell':
+                stop_loss = data['Supertrend'][i]
+                target = data['Close'][i] + (data['Close'][i] - stop_loss)
+                positions.append(('buy', data['Timestamp'][i], data['Close'][i], stop_loss, target))
+                signals.append((data['Timestamp'][i], 'Buy', 'Entry Price:', data['Close'][i], 'Stop Loss:', stop_loss, 'Target:', target))
+                signals_one.append('Buy')
+
+        elif data['Close'][i] < data['EMA50'][i] and data['RSI'][i] < 50 and data['Close'][i] < data['Supertrend'][i]:
+            # Entry for Sell
+            if not positions or positions[-1][0] == 'buy':
+                stop_loss = data['Supertrend'][i]
+                target = data['Close'][i] - (stop_loss - data['Close'][i])
+                positions.append(('sell', data['Timestamp'][i], data['Close'][i], stop_loss, target))
+                signals.append((data['Timestamp'][i], 'Sell', 'Entry Price:', data['Close'][i], 'Stop Loss:', stop_loss, 'Target:', target))
+                signals_one.append('Sell')
+        else:
+            signals_one.append('')
+
+    for signal in signals:
+        print(signal)
+
+    print()
+    
+
+    return signals_one
+
 
 
 ################################### Trade Logic ###########################################
@@ -107,9 +169,9 @@ def execute_orders(data, signals, position, entry_price, stop_loss_price, target
 
 
 ######################################### Back Test with Data ################################################
-instrument_key = 'NSE_FO|36612'
+instrument_key = 'NSE_EQ|INE075A01022'
 interval = '30minute'
-to_date = '2024-03-03'
+to_date = '2024-05-10'
 from_date = '2024-01-01'
 
 
@@ -136,6 +198,27 @@ def test():
     stop_loss_price = res[2]
     target_price = res[3]
 
+def test_with_Supertrend():
+    data = ohlc.fetch_historical_data(instrument_key=instrument_key, interval=interval, to_date=to_date, from_data=from_date)
+    data = data['data']['candles']
+
+    df = pd.DataFrame(data, columns=['Timestamp', 'Open', 'High', 'Low', 'Close', 'Vol', 'Extra'])
+    df[::-1]
+
+    signals = backtest_strategy_with_supertend(data=df)
+
+    entry_price = None
+    position = None
+    stop_loss_price = None
+    target_price = None
+
+    res = execute_orders(data=df, signals=signals, position=position, entry_price=entry_price, stop_loss_price=stop_loss_price, target_price=target_price, instrument_key=instrument_key)
+
+    position = res[0]
+    entry_price = res[1]
+    stop_loss_price = res[2]
+    target_price = res[3]
 
 if __name__ == '__main__':
-    test()
+    #test()
+    test_with_Supertrend()

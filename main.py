@@ -67,7 +67,7 @@ while True:
 
     today_data = today_data[instrument_name]['ohlc']
 
-    today_data = [datetime.now(), today_data.get('open'), today_data.get('high'), today_data.get('low'), today_data.get('close'), None, None]
+    today_data = [datetime.now(), today_data.get('open'), today_data.get('high'), today_data.get('low'), today_data.get('close'), "", ""]
     today_df = pd.DataFrame(today_data, columns=['Time', 'Open', 'High', 'Low', 'Close', 'Volume', 'Extra'])
     today_df = pd.to_datetime(today_df['Time'])
 
