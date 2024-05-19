@@ -103,6 +103,8 @@ def backtest_strategy_with_supertend(data):
                 positions.append(('buy', data['Timestamp'][i], data['Close'][i], stop_loss, target))
                 signals.append((data['Timestamp'][i], 'Buy', 'Entry Price:', data['Close'][i], 'Stop Loss:', stop_loss, 'Target:', target))
                 signals_one.append('Buy')
+            else:
+                signals_one.append('')
 
         elif data['Close'][i] < data['EMA50'][i] and data['RSI'][i] < 50 and data['Close'][i] < data['Supertrend'][i]:
             # Entry for Sell
@@ -112,14 +114,15 @@ def backtest_strategy_with_supertend(data):
                 positions.append(('sell', data['Timestamp'][i], data['Close'][i], stop_loss, target))
                 signals.append((data['Timestamp'][i], 'Sell', 'Entry Price:', data['Close'][i], 'Stop Loss:', stop_loss, 'Target:', target))
                 signals_one.append('Sell')
+            else:
+                signals_one.append('')
         else:
             signals_one.append('')
 
-    for signal in signals:
-        print(signal)
+    # for signal in signals:
+    #     print(signal)
 
-    print()
-    
+    # print()
 
     return signals_one
 
@@ -129,7 +132,7 @@ def backtest_strategy_with_supertend(data):
 
 def execute_orders(data, signals, position, entry_price, stop_loss_price, target_price, instrument_key):
 
-    for i in range(len(data)):
+    for i in range(0, len(data)):
         if i >= 2 and signals[i] != '':
             time = data['Timestamp'][i]
             if position is None and time:
