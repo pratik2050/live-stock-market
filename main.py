@@ -19,8 +19,8 @@ from my_lib import market_ohlc as ohlc
 
 global entry_price, position, stop_loss_price, target_price
 
-instrument_key = 'NSE_FO|46930'                  # Set Instrument token key from excel
-instrument_name = 'NSE_FO:NIFTY24MAYFUT'     # Set Instrument Name from excel 
+instrument_key = 'NSE_EQ|INE075A01022'                  # Set Instrument token key from excel
+instrument_name = 'NSE_EQ|INE075A01022'     # Set Instrument Name from excel 
 interval_histoical = '1minute'
 interval_quote = 'I1'
 
@@ -68,7 +68,7 @@ while True:
     today_data = today_data[instrument_name]['ohlc']
 
     today_data = [datetime.now(), today_data.get('open'), today_data.get('high'), today_data.get('low'), today_data.get('close'), "", ""]
-    today_df = pd.DataFrame(today_data, columns=['Time', 'Open', 'High', 'Low', 'Close', 'Volume', 'Extra'])
+    today_df = pd.DataFrame([today_data], columns=['Time', 'Open', 'High', 'Low', 'Close', 'Volume', 'Extra'])
     today_df = pd.to_datetime(today_df['Time'])
 
     df = historical_df._append(today_data, ignore_index=True)

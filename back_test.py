@@ -172,7 +172,7 @@ def execute_orders(data, signals, position, entry_price, stop_loss_price, target
 
 
 ######################################### Back Test with Data ################################################
-instrument_key = 'NSE_EQ|INE075A01022'
+instrument_key = 'NSE_FO|46930'
 interval = '30minute'
 to_date = '2024-05-10'
 from_date = '2024-01-01'
@@ -223,5 +223,6 @@ def test_with_Supertrend():
     target_price = res[3]
 
 if __name__ == '__main__':
-    #test()
+    test()
+    print()
     test_with_Supertrend()
