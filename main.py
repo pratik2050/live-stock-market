@@ -19,21 +19,17 @@ from my_lib import market_ohlc as ohlc
 
 global entry_price, position, stop_loss_price, target_price
 
-instrument_key = 'NSE_EQ|INE075A01022'                  # Set Instrument token key from excel
-instrument_name = 'NSE_EQ|INE075A01022'     # Set Instrument Name from excel 
+instrument_key = 'NSE_FO|35165'                  # Set Instrument token key from excel
+instrument_name = 'NSE_FO:BANKNIFTY24JULFUT'     # Set Instrument Name from excel 
 interval_histoical = '1minute'
 interval_quote = 'I1'
 
-from_date = '2024-03-21'      # Set the date in format of 'yy-mm-dd' when last trade occured
-to_date = '2024-03-22'        # Set tomorrow date in format of 'yy-mm-dd'
+from_date = '2024-06-01'      # Set the date in format of 'yy-mm-dd' when last trade occured
+to_date = '2024-06-20'        # Set tomorrow date in format of 'yy-mm-dd'
 
 
 historical_data = ohlc.fetch_historical_data(instrument_key=instrument_key, interval=interval_histoical, to_date=to_date, from_data=from_date)
 historical_data = historical_data['data']['candles']
-
-historical_df = pd.DataFrame(historical_data, columns=['Time', 'Open', 'High', 'Low', 'Close', 'Volume', 'Extra'])
-historical_df = pd.to_datetime(historical_df['Time'])
-historical_df[::-1]
 
 json_data = 123
 with open('ohlc.json', 'r') as json_file:
@@ -68,10 +64,12 @@ while True:
     today_data = today_data[instrument_name]['ohlc']
 
     today_data = [datetime.now(), today_data.get('open'), today_data.get('high'), today_data.get('low'), today_data.get('close'), "", ""]
-    today_df = pd.DataFrame([today_data], columns=['Time', 'Open', 'High', 'Low', 'Close', 'Volume', 'Extra'])
-    today_df = pd.to_datetime(today_df['Time'])
+    
+    historical_data = historical_data[::-1]
 
-    df = historical_df._append(today_data, ignore_index=True)
+    main_data = historical_data + [today_data]
+
+    df = pd.DataFrame(main_data, columns=['Time', 'Open', 'High', 'Low', 'Close', 'Volume', 'Extra'])
 
     df = trade.calculate_technicals(data=df)
 
